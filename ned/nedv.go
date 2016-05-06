@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/nacharya/ned/nedapi"
-	"github.com/nacharya/ned/nedcli"
+	"github.com/Nexenta/nedge-docker-volume/ned/nedapi"
+	"github.com/Nexenta/nedge-docker-volume/ned/nedcli"
 	"os"
 )
 
