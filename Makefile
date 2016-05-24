@@ -3,18 +3,18 @@ FLAGS = -v
 
 all: $(NED_EXE)
 
-GO_FILES = src/github.com/Nexenta/nedge-docker-volume/ned/ned.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/nedcli/nedcli.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/nedcli/Foo.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/nedcli/Bar.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/daemon/daemon.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/daemon/driver.go \
-	src/github.com/Nexenta/nedge-docker-volume/ned/nedapi/nedapi.go
+GO_FILES = src/github.com/Nexenta/nedge-docker-volume/nedv/nedv.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/nedcli.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/Foo.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/Bar.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/daemon/daemon.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/daemon/driver.go \
+	src/github.com/Nexenta/nedge-docker-volume/nedv/nedapi/nedapi.go
 
 $(GO_FILES): setup
 
 deps: setup
-#	GOPATH=$(shell pwd) go get github.com/docker/go-plugins-helpers/volume
+	GOPATH=$(shell pwd) go get github.com/docker/go-plugins-helpers/volume
 	GOPATH=$(shell pwd) go get github.com/codegangsta/cli
 	GOPATH=$(shell pwd) go get github.com/Sirupsen/logrus
 	GOPATH=$(shell pwd) go get github.com/coreos/go-systemd/util
@@ -30,10 +30,11 @@ setup:
 	cp -R ned/ src/github.com/Nexenta/nedge-docker-volume/nedv 
 
 clean:
+	rm $(NED_EXE) \
 	rm -rf bin/ pkg/
 
 
-clobber: clean
+clean_src:
 	rm -rf src/github.com/Nexenta/nedge-docker-volume
 
 install:

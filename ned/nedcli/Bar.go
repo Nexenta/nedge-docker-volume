@@ -2,7 +2,7 @@ package nedcli
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/Nexenta/nedge-docker-volume/ned/daemon"
+	"github.com/Nexenta/nedge-docker-volume/nedv/daemon"
 )
 
 var (
