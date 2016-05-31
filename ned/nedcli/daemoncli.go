@@ -6,15 +6,15 @@ import (
 )
 
 var (
-	BarCmd = cli.Command{
+	DaemonCmd = cli.Command{
 		Name:  "daemon",
 		Usage: "daemon related commands",
 		Subcommands: []cli.Command{
-			BarStartCmd,
+			DaemonStartCmd,
 		},
 	}
 
-	BarStartCmd = cli.Command{
+	DaemonStartCmd = cli.Command{
 		Name:  "start",
 		Usage: "Start the Nedge Docker Daemon: `start [options] NAME`",
 		Flags: []cli.Flag{

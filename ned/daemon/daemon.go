@@ -16,7 +16,9 @@ func Start(cfgFile string, debug bool) {
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
+	log.Info("Default docker root nedge: ", defaultDir)
 	d := DriverAlloc(cfgFile)
 	h := volume.NewHandler(d)
+	log.Info("Driver Created, Handler Initialized")
 	log.Info(h.ServeUnix("root", "toor"))
 }

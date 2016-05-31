@@ -33,17 +33,12 @@ func NewCli(version string) *cli.App {
 			Usage:  "Specifies the logging level (debug|warning|error)",
 			EnvVar: "LogLevel",
 		},
-		cli.StringFlag{
-			Name:  "config, c",
-			Value: "",
-			Usage: "Specify SolidFire config file to use (overrides env variables if set).",
-		},
 	}
 	app.CommandNotFound = NedCmdNotFound
 	app.Before = NedInitialize
 	app.Commands = []cli.Command{
-		FooCmd,
-		BarCmd,
+		DaemonCmd,
+		VolumeCmd,
 	}
 	return app
 }

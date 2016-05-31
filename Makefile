@@ -23,19 +23,29 @@ deps: setup
 
 
 $(NED_EXE): $(GO_FILES)
+	GOPATH=$(shell pwd) go install github.com/Nexenta/nedge-docker-volume/nedv
+
+build:
 	GOPATH=$(shell pwd) go build $(FLAGS) github.com/Nexenta/nedge-docker-volume/nedv
 
 setup: 
 	mkdir -p src/github.com/Nexenta/nedge-docker-volume/ 
 	cp -R ned/ src/github.com/Nexenta/nedge-docker-volume/nedv 
 
+lint:
+	GOPATH=$(shell pwd) go get -v github.com/golang/lint/golint
+	for file in $$(find . -name '*.go' | grep -v vendor | grep -v '\.pb\.go' | grep -v '\.pb\.gw\.go'); do \
+		golint $${file}; \
+		if [ -n "$$(golint $${file})" ]; then \
+			exit 1; \
+		fi; \
+	done
+
 clean:
-	rm $(NED_EXE) \
+	GOPATH=$(shell pwd) go clean
+
+
+clobber:
+	rm -rf src/github.com/Nexenta/nedge-docker-volume
 	rm -rf bin/ pkg/
 
-
-clean_src:
-	rm -rf src/github.com/Nexenta/nedge-docker-volume
-
-install:
-	go install github.com/Nexenta/nedge-docker-volume/ned
