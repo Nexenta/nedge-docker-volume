@@ -1,4 +1,4 @@
-package nedapi
+package ndvolapi
 
 import (
 	"encoding/json"
@@ -50,7 +50,7 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 	//TODO:
 	//DefaultApiPort
 	//DefaultAccountID
-	NexentaClient := &Client{
+	NdvolClient := &Client{
 		SVIP:		conf.IOProtocol,
 		Endpoint:	conf.EndPoint,
 		DefaultAPIPort:	8888,
@@ -59,6 +59,6 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 		Config:	&conf,
 	}
 
-	return NexentaClient, nil
+	return NdvolClient, nil
 }
 

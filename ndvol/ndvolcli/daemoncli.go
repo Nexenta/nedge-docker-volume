@@ -1,8 +1,8 @@
-package nedcli
+package ndvolcli
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/Nexenta/nedge-docker-volume/nedv/daemon"
+	"github.com/Nexenta/nedge-docker-volume/ndvol/daemon"
 )
 
 var (
@@ -22,10 +22,6 @@ var (
 				Name:  "verbose, v",
 				Usage: "Enable verbose/debug logging: `[--verbose]`",
 			},
-			cli.StringFlag{
-				Name:  "config, c",
-				Usage: "Config file for daemon (default: /opt/nedge/etc/ccow/ned.json): `[--config /opt/nedge/etc/ccow/ned.json]`",
-			},
 		},
 		Action: cmdDaemonStart,
 	}
@@ -35,7 +31,7 @@ func cmdDaemonStart(c *cli.Context) {
 	verbose := c.Bool("verbose")
 	cfg := c.String("config")
 	if cfg == "" {
-		cfg = "/opt/nedge/etc/ccow/ned.json"
+		cfg = "/opt/nedge/etc/ccow/ndvol.json"
 	}
 	daemon.Start(cfg, verbose)
 }

@@ -1,15 +1,15 @@
-NED_EXE = nedv
+NDVOL_EXE = ndvol
 FLAGS = -v
 
-all: $(NED_EXE)
+all: $(NDVOL_EXE)
 
-GO_FILES = src/github.com/Nexenta/nedge-docker-volume/nedv/nedv.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/nedcli.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/Foo.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/nedcli/Bar.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/daemon/daemon.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/daemon/driver.go \
-	src/github.com/Nexenta/nedge-docker-volume/nedv/nedapi/nedapi.go
+GO_FILES = src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvol.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvolcli/ndvolcli.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvolcli/volumecli.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvolcli/daemoncli.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/daemon/daemon.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/daemon/driver.go \
+	src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvolapi/ndvolapi.go
 
 $(GO_FILES): setup
 
@@ -22,15 +22,15 @@ deps: setup
 	GOPATH=$(shell pwd) go get golang.org/x/net/proxy
 
 
-$(NED_EXE): $(GO_FILES)
-	GOPATH=$(shell pwd) go install github.com/Nexenta/nedge-docker-volume/nedv
+$(NDVOL_EXE): $(GO_FILES)
+	GOPATH=$(shell pwd) go install github.com/Nexenta/nedge-docker-volume/ndvol
 
 build:
-	GOPATH=$(shell pwd) go build $(FLAGS) github.com/Nexenta/nedge-docker-volume/nedv
+	GOPATH=$(shell pwd) go build $(FLAGS) github.com/Nexenta/nedge-docker-volume/ndvol
 
 setup: 
 	mkdir -p src/github.com/Nexenta/nedge-docker-volume/ 
-	cp -R ned/ src/github.com/Nexenta/nedge-docker-volume/nedv 
+	cp -R ndvol/ src/github.com/Nexenta/nedge-docker-volume/ndvol 
 
 lint:
 	GOPATH=$(shell pwd) go get -v github.com/golang/lint/golint

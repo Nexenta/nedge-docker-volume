@@ -1,4 +1,4 @@
-package nedcli
+package ndvolcli
 
 import (
 	"fmt"
@@ -6,26 +6,26 @@ import (
 )
 
 
-func NedCmdNotFound(c *cli.Context, command string) {
+func NdvolCmdNotFound(c *cli.Context, command string) {
 	fmt.Println(command, " not found ");
 
 }
 
-func NedInitialize(c *cli.Context) error {
+func NdvolInitialize(c *cli.Context) error {
 
 	cfgFile := c.GlobalString("config")
 	if cfgFile != "" {
-		fmt.Println("Found config: ", cfgFile);
+// 		fmt.Println("Found config: ", cfgFile);
 	}
 	return nil
 }
 
 func NewCli(version string) *cli.App {
 	app := cli.NewApp()
-	app.Name = "ned"
+	app.Name = "ndvol"
 	app.Version = version
 	app.Author = "nexentaedge@nexenta.com"
-	app.Usage = "CLI for NexentaEdge clusters"
+	app.Usage = "CLI for NexentaEdge volumes"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "loglevel",
@@ -34,8 +34,8 @@ func NewCli(version string) *cli.App {
 			EnvVar: "LogLevel",
 		},
 	}
-	app.CommandNotFound = NedCmdNotFound
-	app.Before = NedInitialize
+	app.CommandNotFound = NdvolCmdNotFound
+	app.Before = NdvolInitialize
 	app.Commands = []cli.Command{
 		DaemonCmd,
 		VolumeCmd,

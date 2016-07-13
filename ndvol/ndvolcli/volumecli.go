@@ -1,4 +1,4 @@
-package nedcli
+package ndvolcli
 
 import (
 	"fmt"
