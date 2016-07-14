@@ -1,8 +1,10 @@
 {
-	"IOProtocol": "NFS",
-    	"Endpoint": "http://localhost:9000",
-    	"TenantName": "docker",
-    	"AccessKey": "BCD2413AAEDF2323432",
-    	"SecretKey": "FOO_BAR",
-    	"MountPoint": "/nmounts"
+	"Name":		"ndvol",
+	"NedgeHost":	"localhost",
+	"NedgePort":	8080,
+	"IOProtocol": 	"NBD",
+	"ClusterName": 	"cltest",
+    	"TenantName": 	"test",
+	"BucketName": 	"cl1",
+	"ChunkSize": 	4096
 }
