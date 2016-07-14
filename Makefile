@@ -1,6 +1,8 @@
 NDVOL_EXE = ndvol
 FLAGS = -v
 
+NEDGE_DEST=/opt/nedge/sbin
+
 all: $(NDVOL_EXE)
 
 GO_FILES = src/github.com/Nexenta/nedge-docker-volume/ndvol/ndvol.go \
@@ -28,6 +30,10 @@ $(NDVOL_EXE): $(GO_FILES)
 build:
 	GOPATH=$(shell pwd) go build $(FLAGS) github.com/Nexenta/nedge-docker-volume/ndvol
 
+
+install: $(NDVOL_EXE)
+	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
+
 setup: 
 	mkdir -p src/github.com/Nexenta/nedge-docker-volume/ 
 	cp -R ndvol/ src/github.com/Nexenta/nedge-docker-volume/ndvol 
@@ -43,7 +49,6 @@ lint:
 
 clean:
 	GOPATH=$(shell pwd) go clean
-
 
 clobber:
 	rm -rf src/github.com/Nexenta/nedge-docker-volume
