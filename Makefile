@@ -2,6 +2,7 @@ NDVOL_EXE = ndvol
 FLAGS = -v
 
 NEDGE_DEST=/opt/nedge/sbin
+NEDGE_ETC = /opt/nedge/etc/ccow
 
 all: $(NDVOL_EXE)
 
@@ -33,6 +34,7 @@ build:
 
 install: $(NDVOL_EXE)
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
+	cp -f src/github.com/Nexenta/nedge-docker-volume/ndvol/daemon/ndvol.json $(NEDGE_ETC)
 
 setup: 
 	mkdir -p src/github.com/Nexenta/nedge-docker-volume/ 
