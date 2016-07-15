@@ -27,7 +27,7 @@ type Client struct {
 type Config struct {
 	Name		string // ndvol
 	NedgeHost	string // localhost
-	NedgePort	string // 8080
+	NedgePort	int64 // 8080
 	IOProtocol	string // NFS, iSCSI, NBD, S3
 	ClusterName	string
 	TenantName	string
