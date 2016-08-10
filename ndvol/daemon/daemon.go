@@ -11,7 +11,7 @@ var (
 )
 
 func Start(cfgFile string, debug bool) {
-	if debug == true {
+	if debug {
 		log.SetLevel(log.DebugLevel)
 	} else {
 		log.SetLevel(log.InfoLevel)
@@ -20,5 +20,5 @@ func Start(cfgFile string, debug bool) {
 	d := DriverAlloc(cfgFile)
 	h := volume.NewHandler(d)
 	log.Info("Driver Created, Handler Initialized")
-	log.Info(h.ServeUnix("root", "toor"))
+	log.Info(h.ServeUnix("root", "ndvol"))
 }

@@ -1,7 +1,7 @@
 package ndvolcli
 
 import (
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/Nexenta/nedge-docker-volume/ndvol/daemon"
 )
 
@@ -21,6 +21,10 @@ var (
 			cli.BoolFlag{
 				Name:  "verbose, v",
 				Usage: "Enable verbose/debug logging: `[--verbose]`",
+			},
+			cli.StringFlag{
+				Name:  "config, c",
+				Usage: "Config file for daemon (default: /etc/nvd/nvd.json): `[--config /etc/nvd/nvd.json]`",
 			},
 		},
 		Action: cmdDaemonStart,

@@ -3,8 +3,9 @@
 	"NedgeHost":	"localhost",
 	"NedgePort":	8080,
 	"IOProtocol": 	"NBD",
-	"ClusterName": 	"cltest",
-    	"TenantName": 	"test",
-	"BucketName": 	"cl1",
-	"ChunkSize": 	4096
+	"ClusterName": 	"cluster",
+	"TenantName": 	"tenant",
+	"BucketName": 	"bucket",
+	"ChunkSize": 	4096,
+	"Server": "2F439480DD6C365F7E84AC13FE6A7535"
 }

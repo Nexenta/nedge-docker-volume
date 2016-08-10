@@ -2,12 +2,14 @@ package ndvolcli
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
+	log "github.com/Sirupsen/logrus"
+	"github.com/urfave/cli"
+	"github.com/Nexenta/nedge-docker-volume/ndvol/ndvolapi"
 )
 
 var (
 	VolumeCmd =  cli.Command{
-		Name:  "VolumeCmd",
+		Name:  "volume",
 		Usage: "Volume related commands",
 		Subcommands: []cli.Command{
 			VolumeCreateCmd,
@@ -28,6 +30,10 @@ var (
 				Name:  "type",
 				Usage: "Specify a volume type ",
 			},
+			cli.BoolFlag{
+				Name:  "verbose, v",
+				Usage: "Enable verbose/debug logging: `[--verbose]`",
+			},
 		},
 		Action: cmdCreateVolume,
 	}
@@ -35,10 +41,9 @@ var (
 		Name:  "delete",
 		Usage: "delete an existing volume: `delete NAME`",
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "range",
-				Value: "",
-				Usage: ": deletes a range of volume`",
+			cli.BoolFlag{
+				Name:  "verbose, v",
+				Usage: "Enable verbose/debug logging: `[--verbose]`",
 			},
 		},
 		Action: cmdDeleteVolume,
@@ -52,21 +57,51 @@ var (
 				Value: "",
 				Usage: ": range of volume`",
 			},
+			cli.BoolFlag{
+				Name:  "verbose, v",
+				Usage: "Enable verbose/debug logging: `[--verbose]`",
+			},
 		},
 		Action: cmdListVolume,
 	}
 
 )
 
-
-func cmdCreateVolume(c *cli.Context) {
-	fmt.Println("cmdCreate: ", c.String("size"));
+func getClient(c *cli.Context) (client *ndvolapi.Client) {
+	cfg := c.String("config")
+	if cfg == "" {
+		cfg = "/opt/nedge/etc/ccow/ndvol.json"
+	}
+	if c.Bool("v") == true {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+	
+	client, _ = ndvolapi.ClientAlloc(cfg)
+	return client
 }
 
-func cmdDeleteVolume(c *cli.Context) {
-	fmt.Println("cmdDelete: ", c.String("name"));
+func cmdCreateVolume(c *cli.Context) cli.ActionFunc {
+	name := c.Args().First()
+	fmt.Println("cmdCreate: ", name, c.String("size"));
+	client := getClient(c)
+	client.CreateVolume(name, c.String("size"))
+	return nil
 }
 
-func cmdListVolume(c *cli.Context) {
-	fmt.Println("cmdDelete: ", c.String("name"));
+func cmdDeleteVolume(c *cli.Context) cli.ActionFunc {
+	name := c.Args().First()
+	fmt.Println("cmdDelete: ", name);
+	client := getClient(c)
+	client.DeleteVolume(name)
+	return nil
+}
+
+func cmdListVolume(c *cli.Context) cli.ActionFunc {
+	fmt.Println("cmdListVolume");
+	client := getClient(c)
+	vlist, _ := client.ListVolumes()
+	fmt.Println(vlist)
+	return nil
 }
