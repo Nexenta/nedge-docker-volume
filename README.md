@@ -30,6 +30,11 @@ For example in your .bashrc set the following alias after setting up PATH:
   export PATH=$PATH:/usr/local/go/bin:<your GO folder>/bin/
   alias sudo='sudo env PATH=$PATH'
   ```
+Source .bashrc to update variables
+```
+  source .bashrc
+```
+
 
 ### GCC
 ```
@@ -57,6 +62,7 @@ Default path to config file is
 After the above Prerequisites are met, clone repository and use the Makefile:
   ```
   git clone https://github.com/nexenta/nedge-docker-volume
+  cd nedge-docker-volume
   make
   ```
 
