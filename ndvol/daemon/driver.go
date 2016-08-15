@@ -79,14 +79,18 @@ func (d NdvolDriver) List(r volume.Request) volume.Response {
 func (d NdvolDriver) Mount(r volume.MountRequest) volume.Response {
 	log.Info(DN, "Mount volume: ", r.Name)
 	d.Mutex.Lock()
-	d.Client.MountVolume(r.Name)
 	defer d.Mutex.Unlock()
 	num, err := d.Client.GetVolume(r.Name)
 	if err != nil {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ", err)
 		return volume.Response{Err: err.Error()}
 	}
-	mnt := fmt.Sprintf("/dev/nbd%d", num)
+	nbd := fmt.Sprintf("/dev/nbd%d", num)
+	mnt, err := d.Client.MountVolume(r.Name, nbd)
+	if err != nil {
+		log.Info("Failed to mount volume named ", r.Name, ": ", err)
+		return volume.Response{Err: err.Error()}
+	}
 	return volume.Response{Mountpoint: mnt}
 }
 

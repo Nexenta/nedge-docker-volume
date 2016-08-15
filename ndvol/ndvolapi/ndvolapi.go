@@ -7,9 +7,13 @@ import (
 	"io/ioutil"
 	"errors"
 	"net/http"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 )
+
+const defaultSize string = "1024";
 
 var (
 	DN = "ndvolapi "
@@ -33,6 +37,7 @@ type Config struct {
 	BucketName	string
 	ChunkSize	int64
 	Server		string
+	MountPoint	string
 }
 
 func ReadParseConfig(fname string) (Config, error) {
@@ -138,6 +143,9 @@ func (c *Client) checkError(resp *http.Response) (bool) {
 func (c *Client) CreateVolume(name string, size string) (err error) {
 	log.Info(fmt.Sprintf("%s: Creating volume %s", DN, name))
 	data := make(map[string]interface{})
+	if size == "" {
+		size = defaultSize
+	}
 	data["volSizeMB"] = size
 	data["blockSize"] = c.ChunkSize
 	data["chunkSize"] = c.ChunkSize
@@ -205,10 +213,18 @@ func (c *Client) DeleteVolume(name string) (err error) {
 	return err
 }
 
-func (c *Client) MountVolume(name string) (num int16, err error) {
+func (c *Client) MountVolume(name string, nbd string) (mnt string, err error) {
 	log.Debug(DN, "Mounting Volume ", name)
+	mnt = filepath.Join(c.Config.MountPoint, name)
+	args := []string{"-t", "ext4", nbd, mnt}
+	if out, err := exec.Command("mkdir", mnt).CombinedOutput(); err != nil {
+		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
+	}
+	if out, err := exec.Command("mount", args...).CombinedOutput(); err != nil {
+		log.Info("Error running mount command: ", err, "{", string(out), "}")
+	}
 	/* TODO: nbd/register request */
-	return num, err
+	return mnt, err
 }
 
 func (c *Client) UnmountVolume(name string) (err error) {
