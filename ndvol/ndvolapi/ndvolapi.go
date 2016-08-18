@@ -216,10 +216,14 @@ func (c *Client) DeleteVolume(name string) (err error) {
 func (c *Client) MountVolume(name string, nbd string) (mnt string, err error) {
 	log.Debug(DN, "Mounting Volume ", name)
 	mnt = filepath.Join(c.Config.MountPoint, name)
-	args := []string{"-t", "ext4", nbd, mnt}
 	if out, err := exec.Command("mkdir", mnt).CombinedOutput(); err != nil {
 		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
 	}
+	args := []string{"-t", "ext4", nbd}
+	if out, err := exec.Command("mkfs", args...).CombinedOutput(); err != nil {
+		log.Info("Error running mount command: ", err, "{", string(out), "}")
+	}
+	args = []string{nbd, mnt}
 	if out, err := exec.Command("mount", args...).CombinedOutput(); err != nil {
 		log.Info("Error running mount command: ", err, "{", string(out), "}")
 	}
@@ -227,8 +231,11 @@ func (c *Client) MountVolume(name string, nbd string) (mnt string, err error) {
 	return mnt, err
 }
 
-func (c *Client) UnmountVolume(name string) (err error) {
+func (c *Client) UnmountVolume(name string, nbd string) (err error) {
 	log.Debug(DN, "Unmounting Volume ", name)
+	if out, err := exec.Command("umount", nbd).CombinedOutput(); err != nil {
+		log.Info("Error running mount command: ", err, "{", string(out), "}")
+	}
 	/* TODO: nbd/unregister request */
 	return err
 }

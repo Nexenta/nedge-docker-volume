@@ -116,9 +116,14 @@ func (d NdvolDriver) Remove(r volume.Request) volume.Response {
 func (d NdvolDriver) Unmount(r volume.UnmountRequest) volume.Response {
 	log.Info(DN, "Unmount volume: ", r.Name)
 	d.Mutex.Lock()
-	d.Client.UnmountVolume(r.Name)
 	defer d.Mutex.Unlock()
-
+	num, err := d.Client.GetVolume(r.Name)
+	if err != nil {
+		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ", err)
+		return volume.Response{Err: err.Error()}
+	}
+	nbd := fmt.Sprintf("/dev/nbd%d", num)
+	d.Client.UnmountVolume(r.Name, nbd)
 	return volume.Response{}
 }
 
