@@ -84,6 +84,10 @@ func getClient(c *cli.Context) (client *ndvolapi.Client) {
 
 func cmdCreateVolume(c *cli.Context) cli.ActionFunc {
 	name := c.Args().First()
+	if name == "" {
+		log.Error("Provide volume name as first argument")
+		return nil
+	}
 	fmt.Println("cmdCreate: ", name, c.String("size"));
 	client := getClient(c)
 	client.CreateVolume(name, c.String("size"))
