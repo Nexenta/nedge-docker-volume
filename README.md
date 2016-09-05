@@ -47,17 +47,6 @@ Should be run as root and command may differ depending on your OS.
 You can find instructions and steps on the Docker website here:
 [Get Docker](https://docs.docker.com/engine/)
 
-## Configuration
-Example config file can be found here:
-  ```
-  https://github.com/Nexenta/nedge-docker-volume/blob/master/ndvol/daemon/ndvol.json
-  ```
-  
-Default path to config file is
-  ```
-  /opt/nedge/etc/ccow/ndvol.json
-  ```
-
 ## Driver Installation
 After the above Prerequisites are met, clone repository and use the Makefile:
   ```
@@ -68,6 +57,17 @@ After the above Prerequisites are met, clone repository and use the Makefile:
 
 In addition to providing the source, this should also build and install the
 ndvol binary in your Golang bin directory.
+
+## Configuration
+Example config file can be found here:
+  ```
+  https://github.com/Nexenta/nedge-docker-volume/blob/master/ndvol/daemon/ndvol.json
+  ```
+  
+Default path to config file is
+  ```
+  /opt/nedge/etc/ccow/ndvol.json
+  ```
 
 ## Starting the daemon
 After install and setting up a configuration, all you need to is start the
