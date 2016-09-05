@@ -240,25 +240,27 @@ func (c *Client) UnmountVolume(name string, nbd string) (err error) {
 	return err
 }
 
-func (c *Client) GetVolume(name string) (num int16, err error) {
+func (c *Client) GetVolume(name string) (mnt string, err error) {
 	log.Debug(DN, "GetVolume ", name)
 	nbdList, err := c.GetNbdList()
 	for _, v := range nbdList {
 		if strings.Split(v["objectPath"].(string), fmt.Sprintf("%s/", c.Path))[1] == name {
-			num = int16(v["number"].(float64))
-			return num, err
+			num := int16(v["number"].(float64))
+			mnt = fmt.Sprintf("%s/%d", c.Config.MountPoint, num)
 		}
 	}
-	return num, err
+	return mnt, err
 }
 
-func (c *Client) ListVolumes() (vmap map[string]int16, err error) {
+func (c *Client) ListVolumes() (vmap map[string]string, err error) {
 	log.Debug(DN, "ListVolumes ")
 	nbdList, err := c.GetNbdList()
-	vmap = make(map[string]int16)
+	vmap = make(map[string]string)
 	for _, v := range nbdList {
 		vname := strings.Split(v["objectPath"].(string), fmt.Sprintf("%s/", c.Path))[1]
-		vmap[vname] = int16(v["number"].(float64))
+		num := int16(v["number"].(float64))
+		vmap[vname] = fmt.Sprintf("%s/%d", c.Config.MountPoint, num)
 	}
+	log.Debug(vmap)
 	return vmap, err
 }

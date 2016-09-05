@@ -37,7 +37,7 @@ func (d NdvolDriver) Capabilities(r volume.Request) volume.Response {
 }
 
 func (d NdvolDriver) Create(r volume.Request) volume.Response {
-	log.Debugf(DN, "Create volume %s on %s\n", r.Name, "nedge")
+	log.Debugf(DN, fmt.Sprintf("Create volume %s on %s\n", r.Name), "nedge")
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()
 	err := d.Client.CreateVolume(r.Name, r.Options["size"])
@@ -49,13 +49,12 @@ func (d NdvolDriver) Create(r volume.Request) volume.Response {
 
 func (d NdvolDriver) Get(r volume.Request) volume.Response {
 	log.Debug(DN, "Get volume: ", r.Name, " Options: ", r.Options)
-	num, err := d.Client.GetVolume(r.Name)
-	if err != nil || num < 1 {
+	mnt, err := d.Client.GetVolume(r.Name)
+	if err != nil || mnt == "" {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ")
 		return volume.Response{}
 	}
-	log.Debug("Device number is: ", num)
-	mnt := fmt.Sprintf("/dev/nbd%d", num)
+	log.Debug("Device mountpoint is: ", mnt)
 	return volume.Response{Volume: &volume.Volume{
 		Name: r.Name, Mountpoint: mnt}}
 }
@@ -68,9 +67,9 @@ func (d NdvolDriver) List(r volume.Request) volume.Response {
 		return volume.Response{Err: err.Error()}
 	}
 	var vols []*volume.Volume
-	for name, num := range vmap {
+	for name, mnt := range vmap {
 		if name != "" {
-			vols = append(vols, &volume.Volume{Name: name, Mountpoint: fmt.Sprintf("/dev/nbd%d", num)})
+			vols = append(vols, &volume.Volume{Name: name, Mountpoint: mnt})
 		}
 	}
 	return volume.Response{Volumes: vols}
