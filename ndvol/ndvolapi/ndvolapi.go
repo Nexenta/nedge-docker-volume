@@ -10,10 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const defaultSize string = "1024";
+const defaultFSType string = "xfs";
 
 var (
 	DN = "ndvolapi "
@@ -100,33 +100,6 @@ func (c *Client) Request(method, endpoint string, data map[string]interface{}) (
 	if (err != nil) {
 		log.Panic(err)
 	}
-	if (resp.StatusCode == 202) {
-		body, err = c.resend202(body)
-	}
-	return body, err
-}
-
-func (c *Client) resend202(body []byte) ([]byte, error) {
-	time.Sleep(1000 * time.Millisecond)
-	r := make(map[string][]map[string]string)
-	err := json.Unmarshal(body, &r)
-	if (err != nil) {
-		log.Panic(err)
-	}
-
-	url := c.Endpoint + r["links"][0]["href"]
-	resp, err := http.Get(url)
-	if err != nil {
-		log.Panic("Error while handling request", err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-	c.checkError(resp)
-
-	if resp.StatusCode == 202 {
-		body, err = c.resend202(body)
-	}
-	body, err = ioutil.ReadAll(resp.Body)
 	return body, err
 }
 
@@ -140,8 +113,12 @@ func (c *Client) checkError(resp *http.Response) (bool) {
 }
 
 
-func (c *Client) CreateVolume(name string, size string) (err error) {
-	log.Info(fmt.Sprintf("%s: Creating volume %s", DN, name))
+func (c *Client) CreateVolume(name, size, bucket, fstype string) (err error) {
+	log.Info(DN, ": Creating volume ", name)
+
+	if fstype == "" {
+		fstype = defaultFSType
+	}
 	data := make(map[string]interface{})
 	if size == "" {
 		size = defaultSize
@@ -149,8 +126,25 @@ func (c *Client) CreateVolume(name string, size string) (err error) {
 	data["volSizeMB"] = size
 	data["blockSize"] = c.ChunkSize
 	data["chunkSize"] = c.ChunkSize
-	data["objectPath"] = c.Path + "/" + name
+	if bucket == "" {
+		data["objectPath"] = c.Path + "/" + name
+	} else {
+		data["objectPath"] = bucket + "/" + name
+	}
 	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
+	num, _, _ := c.GetVolume(name)
+
+	nbd := fmt.Sprintf("/dev/nbd%d", num)
+	mnt := filepath.Join(c.Config.MountPoint, name)
+	if out, err := exec.Command("mkdir", mnt).CombinedOutput(); err != nil {
+		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
+	}
+	args := []string{"-t", fstype, nbd}
+	if out, err := exec.Command("mkfs", args...).CombinedOutput(); err != nil {
+		log.Error("Error running mkfs command: ", err, "{", string(out), "}")
+		err = errors.New(fmt.Sprintf("%s: %s", err, out))
+		return err
+	}
 	return err
 }
 
@@ -172,17 +166,6 @@ func (c *Client) GetRemoteAddr() (addr string) {
 		}
 	}
 	return addr
-}
-
-func (c *Client) GetDevNumber(name string) (number float64) {
-	path := c.Path + "/" + name
-	nbdList, _ := c.GetNbdList()
-	for _, v := range nbdList {
-		if v["objectPath"].(string) == path {
-			return v["number"].(float64)
-		}
-	}
-	return 0
 }
 
 func (c *Client) GetNbdList() (nbdList []map[string]interface{}, err error){
@@ -207,49 +190,52 @@ func (c *Client) GetNbdList() (nbdList []map[string]interface{}, err error){
 func (c *Client) DeleteVolume(name string) (err error) {
 	log.Debug(DN, "Deleting Volume ", name)
 	data := make(map[string]interface{})
-	data["objectPath"] = c.Path + "/" + name
-	data["number"] = c.GetDevNumber(name)
-	_, err = c.Request("DELETE", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
+	num, path, err := c.GetVolume(name)
+	data["objectPath"] = path
+	data["number"] = num
+	remote := c.GetRemoteAddr()
+	_, err = c.Request("DELETE", fmt.Sprintf("nbd?remote=%s", remote), data)
+	mnt := filepath.Join(c.Config.MountPoint, name)
+	if out, err := exec.Command("rm", "-rf", mnt).CombinedOutput(); err != nil {
+		log.Info("Error running rm command: ", err, "{", string(out), "}")
+	}
+
 	return err
 }
 
-func (c *Client) MountVolume(name string, nbd string) (mnt string, err error) {
+func (c *Client) MountVolume(name, nbd string) (mnt string, err error) {
 	log.Debug(DN, "Mounting Volume ", name)
+
 	mnt = filepath.Join(c.Config.MountPoint, name)
-	if out, err := exec.Command("mkdir", mnt).CombinedOutput(); err != nil {
-		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
-	}
-	args := []string{"-t", "ext4", nbd}
-	if out, err := exec.Command("mkfs", args...).CombinedOutput(); err != nil {
-		log.Info("Error running mount command: ", err, "{", string(out), "}")
-	}
-	args = []string{nbd, mnt}
+	args := []string{nbd, mnt}
 	if out, err := exec.Command("mount", args...).CombinedOutput(); err != nil {
-		log.Info("Error running mount command: ", err, "{", string(out), "}")
+		log.Error("Error running mount command: ", err, "{", string(out), "}")
+		err = errors.New(fmt.Sprintf("%s: %s", err, out))
+		return mnt, err
 	}
-	/* TODO: nbd/register request */
 	return mnt, err
 }
 
-func (c *Client) UnmountVolume(name string, nbd string) (err error) {
+func (c *Client) UnmountVolume(name, nbd string) (err error) {
 	log.Debug(DN, "Unmounting Volume ", name)
 	if out, err := exec.Command("umount", nbd).CombinedOutput(); err != nil {
-		log.Info("Error running mount command: ", err, "{", string(out), "}")
+		log.Error("Error running umount command: ", err, "{", string(out), "}")
 	}
-	/* TODO: nbd/unregister request */
+
 	return err
 }
 
-func (c *Client) GetVolume(name string) (mnt string, err error) {
+func (c *Client) GetVolume(name string) (num int16, path string, err error) {
 	log.Debug(DN, "GetVolume ", name)
 	nbdList, err := c.GetNbdList()
 	for _, v := range nbdList {
-		if strings.Split(v["objectPath"].(string), fmt.Sprintf("%s/", c.Path))[1] == name {
-			num := int16(v["number"].(float64))
-			mnt = fmt.Sprintf("%s/%d", c.Config.MountPoint, num)
+		path = v["objectPath"].(string)
+		if strings.Split(path, "/")[len(strings.Split(path, "/")) - 1] == name {
+			num = int16(v["number"].(float64))
+			return num, path, err
 		}
 	}
-	return mnt, err
+	return num, path, err
 }
 
 func (c *Client) ListVolumes() (vmap map[string]string, err error) {
@@ -257,7 +243,9 @@ func (c *Client) ListVolumes() (vmap map[string]string, err error) {
 	nbdList, err := c.GetNbdList()
 	vmap = make(map[string]string)
 	for _, v := range nbdList {
-		vname := strings.Split(v["objectPath"].(string), fmt.Sprintf("%s/", c.Path))[1]
+		objPath := v["objectPath"].(string)
+
+		vname := strings.Split(objPath, "/")[len(strings.Split(objPath, "/")) - 1]
 		num := int16(v["number"].(float64))
 		vmap[vname] = fmt.Sprintf("%s/%d", c.Config.MountPoint, num)
 	}

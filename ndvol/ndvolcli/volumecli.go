@@ -27,8 +27,12 @@ var (
 				Usage: "size of volume in bytes ",
 			},
 			cli.StringFlag{
-				Name:  "type",
-				Usage: "Specify a volume type ",
+				Name:  "fstype",
+				Usage: "Specify a volume fs type (must be mkfs.type)",
+			},
+			cli.StringFlag{
+				Name:  "bucket",
+				Usage: "bucket path to create device in (cluster/tenant/bucket)",
 			},
 			cli.BoolFlag{
 				Name:  "verbose, v",
@@ -90,7 +94,7 @@ func cmdCreateVolume(c *cli.Context) cli.ActionFunc {
 	}
 	fmt.Println("cmdCreate: ", name, c.String("size"));
 	client := getClient(c)
-	client.CreateVolume(name, c.String("size"))
+	client.CreateVolume(name, c.String("size"), c.String("bucket"), c.String("fstype"))
 	return nil
 }
 

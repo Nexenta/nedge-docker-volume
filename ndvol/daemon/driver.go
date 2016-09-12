@@ -37,10 +37,11 @@ func (d NdvolDriver) Capabilities(r volume.Request) volume.Response {
 }
 
 func (d NdvolDriver) Create(r volume.Request) volume.Response {
-	log.Debugf(DN, fmt.Sprintf("Create volume %s on %s\n", r.Name), "nedge")
+	log.Debugf(fmt.Sprintf("Create volume %s on %s\n", r.Name, "nedge"))
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()
-	err := d.Client.CreateVolume(r.Name, r.Options["size"])
+	err := d.Client.CreateVolume(
+		r.Name, r.Options["size"], r.Options["bucket"], r.Options["fstype"])
 	if err != nil {
 		return volume.Response{Err: err.Error()}
 	}
@@ -49,11 +50,12 @@ func (d NdvolDriver) Create(r volume.Request) volume.Response {
 
 func (d NdvolDriver) Get(r volume.Request) volume.Response {
 	log.Debug(DN, "Get volume: ", r.Name, " Options: ", r.Options)
-	mnt, err := d.Client.GetVolume(r.Name)
-	if err != nil || mnt == "" {
+	num, _, err := d.Client.GetVolume(r.Name)
+	if err != nil || num < 1 {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ")
 		return volume.Response{}
 	}
+	mnt := fmt.Sprintf("%s%d", d.Client.Config.MountPoint, r.Name)
 	log.Debug("Device mountpoint is: ", mnt)
 	return volume.Response{Volume: &volume.Volume{
 		Name: r.Name, Mountpoint: mnt}}
@@ -79,7 +81,7 @@ func (d NdvolDriver) Mount(r volume.MountRequest) volume.Response {
 	log.Info(DN, "Mount volume: ", r.Name)
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()
-	num, err := d.Client.GetVolume(r.Name)
+	num, _, err := d.Client.GetVolume(r.Name)
 	if err != nil {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ", err)
 		return volume.Response{Err: err.Error()}
@@ -95,12 +97,12 @@ func (d NdvolDriver) Mount(r volume.MountRequest) volume.Response {
 
 func (d NdvolDriver) Path(r volume.Request) volume.Response {
 	log.Info(DN, "Path volume: ", r.Name, " Options: ", r.Options)
-	num, err := d.Client.GetVolume(r.Name)
+	num, _, err := d.Client.GetVolume(r.Name)
 	if err != nil {
-		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ", err)
+		log.Info("Failed to retrieve volume named ", r.Name, " during Get operation: ", err)
 		return volume.Response{Err: err.Error()}
 	}
-	mnt := fmt.Sprintf("/dev/nbd%d", num)
+	mnt := fmt.Sprintf("%s%d", d.Client.Config.MountPoint, num)
 	return volume.Response{Mountpoint: mnt}
 }
 
@@ -116,7 +118,7 @@ func (d NdvolDriver) Unmount(r volume.UnmountRequest) volume.Response {
 	log.Info(DN, "Unmount volume: ", r.Name)
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()
-	num, err := d.Client.GetVolume(r.Name)
+	num, _, err := d.Client.GetVolume(r.Name)
 	if err != nil {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ", err)
 		return volume.Response{Err: err.Error()}
@@ -125,4 +127,3 @@ func (d NdvolDriver) Unmount(r volume.UnmountRequest) volume.Response {
 	d.Client.UnmountVolume(r.Name, nbd)
 	return volume.Response{}
 }
-
