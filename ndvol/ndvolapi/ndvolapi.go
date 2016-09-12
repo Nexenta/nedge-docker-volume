@@ -246,8 +246,7 @@ func (c *Client) ListVolumes() (vmap map[string]string, err error) {
 		objPath := v["objectPath"].(string)
 
 		vname := strings.Split(objPath, "/")[len(strings.Split(objPath, "/")) - 1]
-		num := int16(v["number"].(float64))
-		vmap[vname] = fmt.Sprintf("%s/%d", c.Config.MountPoint, num)
+		vmap[vname] = fmt.Sprintf("%s/%s", c.Config.MountPoint, vname)
 	}
 	log.Debug(vmap)
 	return vmap, err
