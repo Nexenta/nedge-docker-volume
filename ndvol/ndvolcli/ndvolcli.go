@@ -15,7 +15,7 @@ func NdvolInitialize(c *cli.Context) error {
 
 	cfgFile := c.GlobalString("config")
 	if cfgFile != "" {
-// 		fmt.Println("Found config: ", cfgFile);
+		fmt.Println("Found config: ", cfgFile);
 	}
 	return nil
 }

@@ -18,4 +18,3 @@ func main() {
 	ncli := ndvolcli.NewCli(VERSION)
 	ncli.Run(os.Args)
 }
-
