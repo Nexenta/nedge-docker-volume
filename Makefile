@@ -1,4 +1,4 @@
-setup: 
+build: 
 	sudo cp ndvol/daemon/ndvol.json /opt/nedge/etc/ccow/
 	go get -v github.com/Nexenta/nedge-docker-volume/...
 
@@ -13,3 +13,7 @@ lint:
 
 clean:
 	go clean github.com/Nexenta/nedge-docker-volume
+
+uninstall:
+	rm -f /opt/nedge/etc/ccow/ndvol.json
+	rm -f $GOPATH/bin/ndvol
