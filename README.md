@@ -8,16 +8,7 @@ devices in a Docker environment.
 
 ## Prerequisites
 ### Golang
-To install the latest Golang, just follow the easy steps on the Go install
-websiste.  Again, I prefer to download the tarball and install myself rather
-than use a package manager like apt or yum:
 [Get Go](https://golang.org/doc/install)
-
-NOTE:
-It's very important that you follow the directions and setup your Go
-environment.  After downloading the appropriate package be sure to scroll down
-to the Linux, Mac OS X, and FreeBSD tarballs section and set up your Go
-environment as per the instructions.
 
 You will need to make sure you've added the $GOPATH/bin to your path,
 AND on Ubuntu you will also need to enable the use of the GO Bin path by sudo;
@@ -69,13 +60,20 @@ Default path to config file is
   /opt/nedge/etc/ccow/ndvol.json
   ```
 
-## Starting the daemon
-After install and setting up a configuration, all you need to is start the
-nexenta-docker-driver daemon so tha it can accept requests from Docker.
+## Starting/stopping the daemon
+After install and setting up the configuration file, start the 
+nexenta-docker-driver daemon
 
   ```
   sudo ndvol daemon start -v
   ```
+
+To stop the daemon
+
+ ```
+ sudo ndvol daemon stop
+ ```
+
 
 ## Usage Examples
 Now that the daemon is running, you're ready to issue calls via the Docker
