@@ -1,6 +1,6 @@
 setup: 
 	sudo cp ndvol/daemon/ndvol.json /opt/nedge/etc/ccow/
-	go get -u -v github.com/Nexenta/nedge-docker-volume/...
+	go get -v github.com/Nexenta/nedge-docker-volume/...
 
 lint:
 	go get -v github.com/golang/lint/golint
