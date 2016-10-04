@@ -1,19 +1,27 @@
+NEDGE_DEST = $(DESTDIR)/opt/nedge/sbin
+NEDGE_ETC = $(DESTDIR)/opt/nedge/etc/ccow
+NDVOL_EXE = ndvol
+
 build: 
-	sudo cp ndvol/daemon/ndvol.json /opt/nedge/etc/ccow/
-	go get -v github.com/Nexenta/nedge-docker-volume/...
+	GOPATH=$(shell pwd) go get -v github.com/Nexenta/nedge-docker-volume/...
+	cp ndvol/daemon/ndvol.json /opt/nedge/etc/ccow/
+	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 lint:
-	go get -v github.com/golang/lint/golint
-	for file in $$(find $GOPATH/src/github.com/Nexenta/nedge-docker-volume -name '*.go' | grep -v vendor | grep -v '\.pb\.go' | grep -v '\.pb\.gw\.go'); do \
+	GOPATH=$(shell pwd) GOROOT=$(GO_INSTALL) $(GO) get -v github.com/golang/lint/golint
+	for file in $$(find . -name '*.go' | grep -v vendor | grep -v '\.pb\.go' | grep -v '\.pb\.gw\.go'); do \
 		golint $${file}; \
 		if [ -n "$$(golint $${file})" ]; then \
 			exit 1; \
 		fi; \
 	done
 
-clean:
-	go clean github.com/Nexenta/nedge-docker-volume
+install:
+	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 uninstall:
 	rm -f /opt/nedge/etc/ccow/ndvol.json
-	rm -f $GOPATH/bin/ndvol
+	rm -f $(GOPATH)/bin/ndvol
+
+clean:
+	go clean github.com/Nexenta/nedge-docker-volume
