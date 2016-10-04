@@ -21,7 +21,7 @@ install:
 
 uninstall:
 	rm -f /opt/nedge/etc/ccow/ndvol.json
-	rm -f $(GOPATH)/bin/ndvol
+	rm -f $(NEDGE_DEST)/ndvol
 
 clean:
 	go clean github.com/Nexenta/nedge-docker-volume
