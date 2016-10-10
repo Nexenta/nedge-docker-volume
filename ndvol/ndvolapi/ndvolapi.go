@@ -18,6 +18,7 @@ const defaultSize string = "1024";
 const defaultChunkSize int64 = 32768;
 const defaultBlockSize int64 = 32768;
 const defaultFSType string = "xfs";
+const defaultMountPoint string = filepath.Join(dkvolume.DefaultDockerRootDirectory, ndvol)
 
 var (
 	DN = "ndvolapi "
@@ -69,6 +70,9 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 	}
 	if conf.BlockSize == 0 {
 		conf.BlockSize = defaultBlockSize
+	}
+	if conf.MountPoint == "" {
+		conf.MountPoint = defaultMountPoint
 	}
 	NdvolClient := &Client{
 		IOProtocol:		conf.IOProtocol,
@@ -150,9 +154,9 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	if options["ratelim"] != "" {
 		optionsObject["ccow-iops-rate-lim"] = options["ratelim"]
 	}
-	optionsObject["blockSize"] = c.BlockSize
-	optionsObject["chunkSize"] = c.ChunkSize
-	
+	optionsObject["X-blocksize"] = c.BlockSize
+	optionsObject["ccow-chunkmap-chunk-size"] = c.ChunkSize
+
 	data["optionsObject"] = optionsObject
 
 	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
