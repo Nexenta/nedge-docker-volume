@@ -15,6 +15,8 @@ import (
 )
 
 const defaultSize string = "1024";
+const defaultChunkSize int64 = 32768;
+const defaultBlockSize int64 = 32768;
 const defaultFSType string = "xfs";
 
 var (
@@ -26,6 +28,7 @@ type Client struct {
 	Endpoint	string
 	Path		string
 	ChunkSize	int64
+	BlockSize	int64
 	Config		*Config
 }
 
@@ -38,6 +41,7 @@ type Config struct {
 	TenantName	string
 	BucketName	string
 	ChunkSize	int64
+	BlockSize	int64
 	Server		string
 	MountPoint	string
 }
@@ -60,11 +64,18 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 	if err != nil {
 		log.Fatal(DN, "Error initializing client from Config file: ", configFile, " error: ", err)
 	}
+	if conf.ChunkSize == 0 {
+		conf.ChunkSize = defaultChunkSize
+	}
+	if conf.BlockSize == 0 {
+		conf.BlockSize = defaultBlockSize
+	}
 	NdvolClient := &Client{
 		IOProtocol:		conf.IOProtocol,
 		Endpoint:		fmt.Sprintf("http://%s:%d/", conf.NedgeHost, conf.NedgePort),
 		Path:			conf.ClusterName + "/" + conf.TenantName + "/" + conf.BucketName,
 		ChunkSize:		conf.ChunkSize,
+		BlockSize:		conf.BlockSize,
 		Config:			&conf,
 	}
 
@@ -126,9 +137,6 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 		data["volSizeMB"] = defaultSize
 	}
 
-	data["blockSize"] = c.ChunkSize
-	data["chunkSize"] = c.ChunkSize
-
 	if options["bucket"] == "" {
 		data["objectPath"] = c.Path + "/" + name
 	} else {
@@ -142,6 +150,9 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	if options["ratelim"] != "" {
 		optionsObject["ccow-iops-rate-lim"] = options["ratelim"]
 	}
+	optionsObject["blockSize"] = c.BlockSize
+	optionsObject["chunkSize"] = c.ChunkSize
+	
 	data["optionsObject"] = optionsObject
 
 	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)

@@ -6,7 +6,8 @@
 	"ClusterName": 	"cluster",
 	"TenantName": 	"tenant",
 	"BucketName": 	"bucket",
-	"ChunkSize": 	4096,
+	"ChunkSize": 	32768,
+	"BlockSize": 	4096,
 	"Server": "2F439480DD6C365F7E84AC13FE6A7535",
 	"MountPoint": "/home/ubuntu/mnt"
 }
