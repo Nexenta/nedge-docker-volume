@@ -18,7 +18,7 @@ const defaultSize string = "1024";
 const defaultChunkSize int64 = 32768;
 const defaultBlockSize int64 = 32768;
 const defaultFSType string = "xfs";
-const defaultMountPoint string = filepath.Join(dkvolume.DefaultDockerRootDirectory, ndvol)
+const defaultMountPoint string = "/var/lib/docker/volumes/ndvol"
 
 var (
 	DN = "ndvolapi "
