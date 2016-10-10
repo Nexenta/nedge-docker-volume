@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
+	"github.com/cloudfoundry/bytefmt"
 	"io/ioutil"
 	"errors"
 	"net/http"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"strconv"
 )
 
 const defaultSize string = "1024";
@@ -112,25 +114,37 @@ func (c *Client) checkError(resp *http.Response) (bool) {
 	return false
 }
 
-
-func (c *Client) CreateVolume(name, size, bucket, fstype string) (err error) {
+func (c *Client) CreateVolume(name string, options map[string]string) (err error) {
 	log.Info(DN, ": Creating volume ", name)
-
-	if fstype == "" {
-		fstype = defaultFSType
+	size, err := c.ConvertSize(options["size"])
+	if err != nil {
+		return err
 	}
 	data := make(map[string]interface{})
-	if size == "" {
-		size = defaultSize
-	}
-	data["volSizeMB"] = size
+
 	data["blockSize"] = c.ChunkSize
 	data["chunkSize"] = c.ChunkSize
-	if bucket == "" {
+
+	if options["bucket"] == "" {
 		data["objectPath"] = c.Path + "/" + name
 	} else {
-		data["objectPath"] = bucket + "/" + name
+		data["objectPath"] = options["bucket"] + "/" + name
 	}
+
+	if size == 0 {
+		data["volSizeMB"] = defaultSize
+	} else {
+		data["volSizeMB"] = size
+	}
+
+
+	if options["repCount"] != "" {
+		data["repCount"] = options["repCount"]
+	}
+	if options["ratelim"] != "" {
+		data["ratelim"] = options["ratelim"]
+	}
+
 	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
 	num, _, _ := c.GetVolume(name)
 
@@ -139,6 +153,12 @@ func (c *Client) CreateVolume(name, size, bucket, fstype string) (err error) {
 	if out, err := exec.Command("mkdir", "-p", mnt).CombinedOutput(); err != nil {
 		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
 	}
+
+	fstype := options["fstype"]
+	if fstype == "" {
+		fstype = defaultFSType
+	}
+
 	args := []string{"-t", fstype, nbd}
 	if out, err := exec.Command("mkfs", args...).CombinedOutput(); err != nil {
 		log.Error("Error running mkfs command: ", err, "{", string(out), "}")
@@ -250,4 +270,19 @@ func (c *Client) ListVolumes() (vmap map[string]string, err error) {
 	}
 	log.Debug(vmap)
 	return vmap, err
+}
+
+func (c *Client) ConvertSize(str_size string) (size int64, err error) {
+	uSize, err := bytefmt.ToMegabytes(str_size)
+	if err != nil {
+		intSize, _ := strconv.Atoi(str_size)
+		size = int64(intSize  / 1024 / 1024)
+		err = nil
+	} else {
+		size = int64(uSize)
+	}
+	if size < 64 {
+		err = errors.New("Size must have a minimum value of 64MB")
+	}
+	return size, err
 }

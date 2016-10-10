@@ -41,7 +41,7 @@ func (d NdvolDriver) Create(r volume.Request) volume.Response {
 	d.Mutex.Lock()
 	defer d.Mutex.Unlock()
 	err := d.Client.CreateVolume(
-		r.Name, r.Options["size"], r.Options["bucket"], r.Options["fstype"])
+		r.Name, r.Options)
 	if err != nil {
 		return volume.Response{Err: err.Error()}
 	}
