@@ -134,19 +134,15 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	} else {
 		data["objectPath"] = options["bucket"] + "/" + name
 	}
-	// data["volSizeMB"] = size
-	// if size == 0 {
-	// 	data["volSizeMB"] = defaultSize
-	// } else {
-	// 	data["volSizeMB"] = size
-	// }
 
+	optionsObject := make(map[string]interface{})
 	if options["repCount"] != "" {
-		data["optionsObject"] = map[string]interface{}{"ccow-replication-count": options["repCount"]} 
+		optionsObject["ccow-replication-count"] = options["repCount"] 
 	}
 	if options["ratelim"] != "" {
-		data["ratelim"] = options["ratelim"]
+		optionsObject["ccow-iops-rate-lim"] = options["ratelim"]
 	}
+	data["optionsObject"] = optionsObject
 
 	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
 	num, _, _ := c.GetVolume(name)
