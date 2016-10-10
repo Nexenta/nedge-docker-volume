@@ -154,7 +154,7 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	if options["ratelim"] != "" {
 		optionsObject["ccow-iops-rate-lim"] = options["ratelim"]
 	}
-	optionsObject["X-blocksize"] = c.BlockSize
+	data["blockSize"] = c.BlockSize
 	optionsObject["ccow-chunkmap-chunk-size"] = c.ChunkSize
 
 	data["optionsObject"] = optionsObject
