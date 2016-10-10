@@ -87,7 +87,7 @@ For a list of avaialable commands run:
 Here's an example of how to create a Nexenta volume using the Docker Volume
 API:
   ```
-  docker volume create -d ndvol --name=testvolume -o size=1024
+  docker volume create -d ndvol --name=testvolume -o size=1GB -o repCount=2 -o ratelim=1000
   ```
 
 Now in order to use that volume with a Container you simply specify
