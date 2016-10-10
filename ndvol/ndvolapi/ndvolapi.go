@@ -116,11 +116,15 @@ func (c *Client) checkError(resp *http.Response) (bool) {
 
 func (c *Client) CreateVolume(name string, options map[string]string) (err error) {
 	log.Info(DN, ": Creating volume ", name)
-	size, err := c.ConvertSize(options["size"])
-	if err != nil {
-		return err
-	}
 	data := make(map[string]interface{})
+	if options["size"] != "" {
+		data["volSizeMB"], err = c.ConvertSize(options["size"])
+		if err != nil {
+			return err
+		}
+	} else {
+		data["volSizeMB"] = defaultSize
+	}
 
 	data["blockSize"] = c.ChunkSize
 	data["chunkSize"] = c.ChunkSize
@@ -130,16 +134,15 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	} else {
 		data["objectPath"] = options["bucket"] + "/" + name
 	}
-
-	if size == 0 {
-		data["volSizeMB"] = defaultSize
-	} else {
-		data["volSizeMB"] = size
-	}
-
+	// data["volSizeMB"] = size
+	// if size == 0 {
+	// 	data["volSizeMB"] = defaultSize
+	// } else {
+	// 	data["volSizeMB"] = size
+	// }
 
 	if options["repCount"] != "" {
-		data["repCount"] = options["repCount"]
+		data["optionsObject"] = map[string]interface{}{"ccow-replication-count": options["repCount"]} 
 	}
 	if options["ratelim"] != "" {
 		data["ratelim"] = options["ratelim"]
