@@ -136,7 +136,7 @@ func (c *Client) CreateVolume(name, size, bucket, fstype string) (err error) {
 
 	nbd := fmt.Sprintf("/dev/nbd%d", num)
 	mnt := filepath.Join(c.Config.MountPoint, name)
-	if out, err := exec.Command("mkdir", mnt).CombinedOutput(); err != nil {
+	if out, err := exec.Command("mkdir", "-p", mnt).CombinedOutput(); err != nil {
 		log.Info("Error running mkdir command: ", err, "{", string(out), "}")
 	}
 	args := []string{"-t", fstype, nbd}
