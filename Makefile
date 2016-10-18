@@ -2,9 +2,9 @@ NEDGE_DEST = $(DESTDIR)/opt/nedge/sbin
 NEDGE_ETC = $(DESTDIR)/opt/nedge/etc/ccow
 NDVOL_EXE = ndvol
 
-build: 
+build:
 	GOPATH=$(shell pwd) go get -v github.com/Nexenta/nedge-docker-volume/...
-	cp ndvol/daemon/ndvol.json /opt/nedge/etc/ccow/
+	cp ndvol/daemon/ndvol.json $(NEDGE_ETC)
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 lint:
@@ -20,7 +20,7 @@ install:
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 uninstall:
-	rm -f /opt/nedge/etc/ccow/ndvol.json
+	rm -f $(NEDGE_ETC)/ndvol.json
 	rm -f $(NEDGE_DEST)/ndvol
 
 clean:
