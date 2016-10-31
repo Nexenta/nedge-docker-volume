@@ -20,7 +20,7 @@ install:
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 uninstall:
-	rm -f /opt/nedge/etc/ccow/ndvol.json
+	rm -f $(NEDGE_ETC)/ndvol.json
 	rm -f $(NEDGE_DEST)/ndvol
 
 clean:
