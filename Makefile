@@ -17,7 +17,7 @@ lint:
 	done
 
 install:
-	cp -n ndnet/daemon/ndvol.json $(NEDGE_ETC)
+	cp -n ndvol/daemon/ndvol.json $(NEDGE_ETC)
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 uninstall:
