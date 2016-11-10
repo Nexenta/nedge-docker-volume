@@ -4,7 +4,7 @@ NDVOL_EXE = ndvol
 
 build: 
 	GOPATH=$(shell pwd) go get -v github.com/docker/go-plugins-helpers/...
-	cd src/github.com/docker/go-plugins-helpers/volume; git checkout 60d242c
+	cd src/github.com/docker/go-plugins-helpers; git checkout d7fc7d0
 	GOPATH=$(shell pwd) go get -v github.com/Nexenta/nedge-docker-volume/...
 
 lint:
@@ -17,6 +17,7 @@ lint:
 	done
 
 install:
+	cp -n ndnet/daemon/ndvol.json $(NEDGE_ETC)
 	cp -f bin/$(NDVOL_EXE) $(NEDGE_DEST)
 
 uninstall:
