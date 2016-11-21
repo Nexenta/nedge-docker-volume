@@ -52,7 +52,7 @@ func (d NdvolDriver) Get(r volume.Request) volume.Response {
 	log.Debug(DN, "Get volume: ", r.Name, " Options: ", r.Options)
 	num, _, err := d.Client.GetVolume(r.Name)
 	if err != nil || num < 1 {
-		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ")
+		log.Info("Volume with name ", r.Name, " not found")
 		return volume.Response{}
 	}
 	mnt := fmt.Sprintf("%s/%s", d.Client.Config.MountPoint, r.Name)
