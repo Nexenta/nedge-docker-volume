@@ -159,7 +159,7 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 
 	data["optionsObject"] = optionsObject
 
-	_, err = c.Request("POST", fmt.Sprintf("nbd?remote=%s", c.GetRemoteAddr()), data)
+	_, err = c.Request("POST", "nbd", data)
 	num, _, _ := c.GetVolume(name)
 
 	nbd := fmt.Sprintf("/dev/nbd%d", num)
@@ -182,28 +182,8 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	return err
 }
 
-func (c *Client) GetRemoteAddr() (addr string) {
-	body, err := c.Request("GET", "system/stats", nil)
-	if err != nil {
-		log.Panic("Error while handling request", err)
-	}
-	r := make(map[string]map[string]interface{})
-	jsonerr := json.Unmarshal(body, &r)
-	if (jsonerr != nil) {
-		log.Error(jsonerr)
-	}
-	stats, _ := r["response"]["stats"].(map[string]interface{})
-	servers := stats["servers"].(map[string]interface{})
-	for k := range servers {
-		if k == c.Config.Server {
-			addr = servers[k].(map[string]interface{})["ipv6addr"].(string)
-		}
-	}
-	return addr
-}
-
 func (c *Client) GetNbdList() (nbdList []map[string]interface{}, err error){
-	body, err := c.Request("GET", fmt.Sprintf("sysconfig/nbd/devices?remote=%s", c.GetRemoteAddr()), nil)
+	body, err := c.Request("GET", "sysconfig/nbd/devices", nil)
 	if err != nil {
 		log.Panic("Error while handling request", err)
 	}
@@ -227,8 +207,7 @@ func (c *Client) DeleteVolume(name string) (err error) {
 	num, path, err := c.GetVolume(name)
 	data["objectPath"] = path
 	data["number"] = num
-	remote := c.GetRemoteAddr()
-	_, err = c.Request("DELETE", fmt.Sprintf("nbd?remote=%s", remote), data)
+	_, err = c.Request("DELETE", "nbd", data)
 	mnt := filepath.Join(c.Config.MountPoint, name)
 	if out, err := exec.Command("rm", "-rf", mnt).CombinedOutput(); err != nil {
 		log.Info("Error running rm command: ", err, "{", string(out), "}")
