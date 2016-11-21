@@ -55,7 +55,7 @@ func (d NdvolDriver) Get(r volume.Request) volume.Response {
 		log.Info("Failed to retrieve volume named ", r.Name, "during Get operation: ")
 		return volume.Response{}
 	}
-	mnt := fmt.Sprintf("%s%s", d.Client.Config.MountPoint, r.Name)
+	mnt := fmt.Sprintf("%s/%s", d.Client.Config.MountPoint, r.Name)
 	log.Debug("Device mountpoint is: ", mnt)
 	return volume.Response{Volume: &volume.Volume{
 		Name: r.Name, Mountpoint: mnt}}
