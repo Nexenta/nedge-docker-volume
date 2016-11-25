@@ -14,11 +14,11 @@ import (
 	"strconv"
 )
 
-const defaultSize string = "1024";
+const defaultSize string = "8192";
 const defaultChunkSize int64 = 32768;
 const defaultBlockSize int64 = 4096;
 const defaultFSType string = "xfs";
-const defaultMountPoint string = "/var/lib/docker/volumes/ndvol"
+const defaultMountPoint string = "/var/lib/ndvol"
 
 var (
 	DN = "ndvolapi "
