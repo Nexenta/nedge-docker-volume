@@ -28,8 +28,8 @@ type Client struct {
 	IOProtocol	string
 	Endpoint	string
 	Path		string
-	ChunkSize	int64
-	BlockSize	int64
+	chunksize	int64
+	blocksize	int64
 	Config		*Config
 }
 
@@ -41,8 +41,8 @@ type Config struct {
 	ClusterName	string
 	TenantName	string
 	BucketName	string
-	ChunkSize	int64
-	BlockSize	int64
+	chunksize	int64
+	blocksize	int64
 	Server		string
 	MountPoint	string
 }
@@ -65,11 +65,11 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 	if err != nil {
 		log.Fatal(DN, "Error initializing client from Config file: ", configFile, " error: ", err)
 	}
-	if conf.ChunkSize == 0 {
-		conf.ChunkSize = defaultChunkSize
+	if conf.chunksize == 0 {
+		conf.chunksize = defaultChunkSize
 	}
-	if conf.BlockSize == 0 {
-		conf.BlockSize = defaultBlockSize
+	if conf.blocksize == 0 {
+		conf.blocksize = defaultBlockSize
 	}
 	if conf.MountPoint == "" {
 		conf.MountPoint = defaultMountPoint
@@ -78,8 +78,8 @@ func ClientAlloc(configFile string) (c *Client, err error) {
 		IOProtocol:		conf.IOProtocol,
 		Endpoint:		fmt.Sprintf("http://%s:%d/", conf.NedgeHost, conf.NedgePort),
 		Path:			conf.ClusterName + "/" + conf.TenantName + "/" + conf.BucketName,
-		ChunkSize:		conf.ChunkSize,
-		BlockSize:		conf.BlockSize,
+		chunksize:		conf.chunksize,
+		blocksize:		conf.blocksize,
 		Config:			&conf,
 	}
 
@@ -148,14 +148,14 @@ func (c *Client) CreateVolume(name string, options map[string]string) (err error
 	}
 
 	optionsObject := make(map[string]interface{})
-	if options["repCount"] != "" {
-		optionsObject["ccow-replication-count"] = options["repCount"] 
+	if options["repcount"] != "" {
+		optionsObject["ccow-replication-count"] = options["repcount"] 
 	}
 	if options["ratelim"] != "" {
 		optionsObject["ccow-iops-rate-lim"] = options["ratelim"]
 	}
-	data["blockSize"] = c.BlockSize
-	optionsObject["ccow-chunkmap-chunk-size"] = c.ChunkSize
+	data["blockSize"] = c.blocksize
+	optionsObject["ccow-chunkmap-chunk-size"] = c.chunksize
 
 	data["optionsObject"] = optionsObject
 
