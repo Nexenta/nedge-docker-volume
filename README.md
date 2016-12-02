@@ -4,7 +4,7 @@ NexentaEdge Plugin for Docker Volumes
 
 ## Description
 This plugin provides the ability to use NexentaEdge Clusters as backend
-devices in a Docker environment.
+devices in a Docker environment over nbd protocol.
 
 ## Prerequisites
 ### Golang
