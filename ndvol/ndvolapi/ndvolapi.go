@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	"github.com/cloudfoundry/bytefmt"
+	"code.cloudfoundry.org/bytefmt"
 	"io/ioutil"
 	"errors"
 	"net/http"
